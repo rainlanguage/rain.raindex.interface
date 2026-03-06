@@ -330,6 +330,7 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// expressions will modify some internal state associated with active
     /// orders. If ANY of the expressions revert, the entire transaction MUST
     /// revert.
+    /// @param tasks The tasks to evaluate.
     function entask2(TaskV2[] calldata tasks) external;
 
     /// `msg.sender` deposits tokens according to config. The config specifies
@@ -357,7 +358,8 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// amount is zero.
     ///
     /// Vault ID `0` is disallowed for deposits to avoid collision with vaultless
-    /// orders.
+    /// orders. The order book MUST revert with `ZeroVaultId` if the vault ID is
+    /// zero.
     ///
     /// @param token The token to deposit.
     /// @param vaultId The vault ID to deposit under.
@@ -378,6 +380,7 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// other internal accounting.
     ///
     /// Vault ID `0` is NOT supported due to collision with vaultless orders.
+    /// The order book MUST revert with `ZeroVaultId` if the vault ID is zero.
     ///
     /// @param token The token to withdraw.
     /// @param vaultId The vault ID to withdraw from.
@@ -462,7 +465,9 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// without needing to place their own order and clear them. This works like
     /// a market buy but against a specific set of orders. Every order will
     /// looped over and calculated individually then filled maximally until the
-    /// request input is reached for the `msg.sender`. The `msg.sender` is
+    /// request input/output limit is reached for the `msg.sender`. Whether the
+    /// limit applies to input or output is determined by the `IOIsInput` flag
+    /// in `TakeOrdersConfigV5`. The `msg.sender` is
     /// responsible for selecting the best orders at the time according to their
     /// criteria and MAY specify a maximum IO ratio to guard against an order
     /// spiking the ratio beyond what the `msg.sender` expected and is
@@ -474,8 +479,9 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// more reliable orders further down their list. Misconfiguration such as
     /// token mismatches are errors that revert as this is known and static at
     /// all times to the `msg.sender` so MUST be provided correctly. `msg.sender`
-    /// MAY specify a minimum input that MUST be reached across all orders in the
-    /// list, otherwise the transaction will revert, this MAY be set to zero.
+    /// MAY specify a minimum input/output that MUST be reached across all
+    /// orders in the list, otherwise the transaction will revert, this MAY be
+    /// set to zero.
     ///
     /// Exactly like withdraw, if there is an active flash loan for `msg.sender`
     /// they will have their outstanding loan reduced by the final input amount

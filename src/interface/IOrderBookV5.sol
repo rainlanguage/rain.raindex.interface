@@ -93,7 +93,7 @@ struct IOV2 {
 /// the expression deployer that they specify. However they MAY specify a
 /// deployer with a corrupt integrity check, so counterparties and clearers MUST
 /// check the DISpair of the order and avoid untrusted pairings.
-/// @param evaluable Standard `EvaluableV3` used to evaluate the order.
+/// @param evaluable Standard `EvaluableV4` used to evaluate the order.
 /// @param validInputs As per `validInputs` on the `Order`.
 /// @param validOutputs As per `validOutputs` on the `Order`.
 /// @param nonce As per `nonce` on the `Order`.
@@ -113,9 +113,9 @@ struct OrderConfigV4 {
 }
 
 /// Defines a fully deployed order ready to evaluate by Orderbook. Identical to
-/// `Order` except for the newer `EvaluableV2`.
+/// `Order` except for the newer `EvaluableV4`.
 /// @param owner The owner of the order is the `msg.sender` that added the order.
-/// @param evaluable Standard `EvaluableV2` with entrypoints for both
+/// @param evaluable Standard `EvaluableV4` with entrypoints for both
 /// "calculate order" and "handle IO". The latter MAY be empty bytes, in which
 /// case it will be skipped at runtime to save gas.
 /// @param validInputs A list of input tokens that are economically equivalent
@@ -290,7 +290,7 @@ struct QuoteV2 {
 /// deactivates them. This is gas efficient as order owners MAY deposit more
 /// tokens in a vault with an order against it many times and the order strategy
 /// will continue to be clearable according to its expression. As vault IDs are
-/// `bytes` values there are effectively infinite possible vaults for any token
+/// `bytes32` values there are effectively infinite possible vaults for any token
 /// so there is no limit to how many active orders any address can have at one
 /// time. This also allows orders to be daisy chained arbitrarily where output
 /// vaults for some order are the input vaults for some other order.
@@ -309,7 +309,7 @@ struct QuoteV2 {
 /// notably the interpreter's store, is malicious and guard against reentrancy
 /// etc.
 ///
-/// As Orderbook supports any expression that can run on any `IInterpreterV1` and
+/// As Orderbook supports any expression that can run on any `IInterpreterV4` and
 /// counterparties are available to the order, order strategies are free to
 /// implement KYC/membership, tracking, distributions, stock, buybacks, etc. etc.
 ///
@@ -450,6 +450,7 @@ interface IOrderBookV5 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// expressions will modify some internal state associated with active
     /// orders. If ANY of the expressions revert, the entire transaction MUST
     /// revert.
+    /// @param tasks The tasks to evaluate.
     function entask2(TaskV2[] calldata tasks) external;
 
     /// `msg.sender` deposits tokens according to config. The config specifies
@@ -466,7 +467,7 @@ interface IOrderBookV5 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// allows much more granular and direct control over token movements within
     /// Orderbook than either ERC4626 vault shares or mere contract-level ERC20
     /// allowances can facilitate.
-    //
+    ///
     /// Vault IDs are namespaced by the token address so there is no risk of
     /// collision between tokens. For example, vault ID 0 for token A is
     /// completely different to vault ID 0 for token B.

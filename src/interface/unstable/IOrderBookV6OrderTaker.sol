@@ -4,6 +4,18 @@ pragma solidity ^0.8.18;
 
 import {Float} from "./IOrderBookV6.sol";
 
+/// @title IOrderBookV6OrderTaker
+/// @notice Interface for contracts that wish to `takeOrders` from an
+/// `IOrderBookV6` contract and receive a callback between the input being
+/// sent and output being taken.
+///
+/// SECURITY: This callback executes mid-transaction, after input tokens
+/// have been sent to the taker but before output tokens are pulled.
+/// Implementations MUST NOT re-enter the orderbook (e.g. via takeOrders,
+/// withdraw, or clear) during this callback. Orderbook implementations
+/// MUST use reentrancy guards to protect against malicious callbacks.
+/// Implementations MUST validate that `msg.sender` is the trusted
+/// orderbook contract.
 interface IOrderBookV6OrderTaker {
     /// @notice Called by `IOrderBookV6` when `takeOrders` is called with
     /// non-zero data, if it caused a non-zero input amount. I.e. if the order(s)
