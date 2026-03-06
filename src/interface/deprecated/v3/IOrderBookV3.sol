@@ -3,13 +3,13 @@
 pragma solidity ^0.8.18;
 
 import {IERC3156FlashLender} from "../../ierc3156/IERC3156FlashLender.sol";
-import {EvaluableV2} from "rain.interpreter.interface/lib/caller/LibEvaluable.sol";
 import {
+    EvaluableV2,
     EvaluableConfigV3,
     IInterpreterCallerV2,
     SignedContextV1
-} from "rain.interpreter.interface/interface/deprecated/IInterpreterCallerV2.sol";
-import {IExpressionDeployerV3} from "rain.interpreter.interface/interface/deprecated/IExpressionDeployerV3.sol";
+} from "rain.interpreter.interface/interface/deprecated/v1/IInterpreterCallerV2.sol";
+import {IExpressionDeployerV3} from "rain.interpreter.interface/interface/deprecated/v1/IExpressionDeployerV3.sol";
 
 /// Import unmodified structures from older versions of `IOrderBook`.
 import {IO, ClearConfig, ClearStateChange} from "../v2/IOrderBookV2.sol";
