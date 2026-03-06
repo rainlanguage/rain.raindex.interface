@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 thedavidmeister
 pragma solidity ^0.8.18;
 
-import {IERC3156FlashLender} from "./ierc3156/IERC3156FlashLender.sol";
+import {IERC3156FlashLender} from "../../ierc3156/IERC3156FlashLender.sol";
 import {
     EvaluableV4,
     IInterpreterCallerV4,
@@ -11,11 +11,11 @@ import {
     IInterpreterV4,
     //forge-lint: disable-next-line(unused-import)
     IInterpreterStoreV3
-} from "../../lib/rain.interpreter.interface/src/interface/unstable/IInterpreterCallerV4.sol";
+} from "../../../../lib/rain.interpreter.interface/src/interface/unstable/IInterpreterCallerV4.sol";
 
 /// Import unmodified structures from older versions of `IOrderBook`.
 //forge-lint: disable-start(unused-import)
-import {NoOrders, ZeroMaximumInput} from "./deprecated/v4/IOrderBookV4.sol";
+import {NoOrders, ZeroMaximumInput} from "../v4/IOrderBookV4.sol";
 //forge-lint: disable-end(unused-import)
 
 import {Float} from "rain.math.float/lib/LibDecimalFloat.sol";

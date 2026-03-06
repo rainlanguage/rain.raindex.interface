@@ -30,11 +30,14 @@ Compiler: Solidity 0.8.25, EVM target: cancun, optimizer enabled (1M runs). Fuzz
 
 ### Interfaces (`src/interface/`)
 
-- **IOrderBookV5** — Current stable interface. Vault-based order book with deposit/withdraw, add/remove orders, take orders (market buy), and clear (match two orders with bounty). IERC3156 flash loan compliant.
-- **IOrderBookV6** (`unstable/`) — Next version. Adds vaultless orders (vault ID `0` means tokens move directly from wallet) and output-based take order limits.
-- **IOrderBookV5OrderTaker / IOrderBookV5ArbOrderTaker** — Callback interfaces for takers receiving tokens during `takeOrders`.
+- **IOrderBookV6** — Current stable interface. Vault-based order book with deposit/withdraw, add/remove orders, take orders (market buy), and clear (match two orders with bounty). IERC3156 flash loan compliant. Supports vaultless orders (vault ID `0` means tokens move directly from wallet) and input/output-based take order limits via `IOIsInput` flag.
+- **IOrderBookV6OrderTaker / IOrderBookV6ArbOrderTaker** — Callback interfaces for takers receiving tokens during `takeOrders`.
 - **ierc3156/** — Flash loan interfaces (IERC3156FlashLender, IERC3156FlashBorrower).
-- **deprecated/** (v1-v4) — Old interface versions. Do not modify unless undeprecating.
+- **deprecated/** (v1-v5) — Old interface versions. Do not modify unless undeprecating.
+
+### Interface Lifecycle
+
+Stable interfaces live directly in `src/interface/`. New unstable interfaces go in `src/interface/unstable/` until stabilised. When stabilising, move from `unstable/` to `src/interface/` and move the previous stable version to `deprecated/v<N>/`.
 
 ### Key Types
 
@@ -58,7 +61,7 @@ rain.math.float/=lib/rain.interpreter.interface/lib/rain.math.float/src/
 
 - All reverts use custom errors — no `revert("string")` or `require()` with string messages.
 - Interfaces use `pragma solidity ^0.8.18` (note: differs from interpreter interface which uses `^0.8.25`).
-- Versioned naming: interfaces (`IOrderBookV5`), structs (`OrderV4`, `ClearConfigV2`), events (`AddOrderV3`), functions (`deposit3`, `withdraw3`).
+- Versioned naming: interfaces (`IOrderBookV6`), structs (`OrderV4`, `ClearConfigV2`), events (`AddOrderV3`), functions (`deposit4`, `withdraw4`).
 - Use `//forge-lint: disable-next-line(...)` comments for lint suppressions: `unused-import`, `mixed-case-variable`, `pascal-case-struct`.
 - Use `//forge-lint: disable-start(...)`/`disable-end(...)` for multi-line suppressions.
 - Branch naming: `YYYY-MM-DD-description`.
