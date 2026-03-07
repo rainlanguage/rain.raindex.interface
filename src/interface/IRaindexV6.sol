@@ -14,7 +14,7 @@ import {
     IInterpreterStoreV3
 } from "../../lib/rain.interpreter.interface/src/interface/IInterpreterCallerV4.sol";
 
-/// Import unmodified structures from older versions of the order book interface.
+/// Import unmodified structures from older versions of the Raindex interface.
 import {
     ClearStateChangeV2,
     ClearConfigV2,
@@ -115,8 +115,7 @@ struct TakeOrdersConfigV5 {
 /// against Raindex expressions. All deposited tokens across all vaults are
 /// available for flashloan, the flashloan MAY BE REPAID BY CALLING TAKE ORDER
 /// such that Raindex's liability to its vaults is decreased by an incoming
-/// trade from the flashloan borrower. See `ZeroExOrderBookFlashBorrower` for
-/// an example of how this works in practise.
+/// trade from the flashloan borrower.
 ///
 /// Token amounts and ratios returned by calculate order MUST be rain floating
 /// point values. Handle IO will receive these values as floating point values.
@@ -432,7 +431,7 @@ interface IRaindexV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     ///
     /// If the order already exists, the Raindex MUST NOT change state, which
     /// includes not emitting an event. Instead it MUST return false. If the
-    /// Raindex modifies state it MUST emit an `AddOrder` event and return
+    /// Raindex modifies state it MUST emit an `AddOrderV3` event and return
     /// true.
     ///
     /// If vault ID is `0` for any input or output, this indicates a vaultless
