@@ -1,4 +1,4 @@
-## Raindex
+# Raindex
 
 Raindex is a programmable, dynamic onchain order book. Orders are not static
 limit orders — they are strategies written as Rain interpreter expressions that
