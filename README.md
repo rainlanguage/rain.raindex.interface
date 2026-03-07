@@ -7,7 +7,7 @@ onchain state, time, oracle prices, or any other logic the expression author
 encodes. Two orders clear when their evaluated ratios overlap, with any surplus
 going to the clearer as a bounty.
 
-### Raindex vs. traditional order books
+## Raindex vs. traditional order books
 
 Traditional onchain order books (e.g. dYdX, Serum) replicate the familiar
 limit-order model: users place fixed-price bids and asks, a matching engine
@@ -22,7 +22,7 @@ balances, its own persistent storage — so a single order can implement
 strategies that would otherwise require off-chain bots continuously cancelling
 and reposting.
 
-### Raindex vs. AMMs
+## Raindex vs. AMMs
 
 AMMs (Uniswap, Curve, Balancer) achieve always-on liquidity by pooling tokens
 into a shared reserve governed by a bonding curve. Liquidity providers deposit
