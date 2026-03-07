@@ -14,7 +14,7 @@ import {
     IInterpreterStoreV3
 } from "../../lib/rain.interpreter.interface/src/interface/IInterpreterCallerV4.sol";
 
-/// Import unmodified structures from older versions of `IOrderBook`.
+/// Import unmodified structures from older versions of the Raindex interface.
 import {
     ClearStateChangeV2,
     ClearConfigV2,
@@ -61,9 +61,9 @@ struct TakeOrdersConfigV5 {
     bytes data;
 }
 
-/// @title IOrderBookV6
-/// @notice An orderbook that deploys _strategies_ represented as interpreter
-/// expressions rather than individual orders. The order book contract itself
+/// @title IRaindexV6
+/// @notice A Raindex that deploys _strategies_ represented as interpreter
+/// expressions rather than individual orders. The Raindex contract itself
 /// behaves similarly to an `ERC4626` vault but with much more fine grained
 /// control over how tokens are allocated and moved internally by their owners,
 /// and without any concept of "shares". Token owners MAY deposit and withdraw
@@ -91,7 +91,7 @@ struct TakeOrdersConfigV5 {
 /// move from order B to order A and 10 TKNA will move to the clearer's vault and
 /// 1 TKNB will move from order A to order B. In the case of fixed prices this is
 /// not very interesting as order B could more simply take order A directly for
-/// cheaper rather than involving a third party. Indeed, Orderbook supports a
+/// cheaper rather than involving a third party. Indeed, Raindex supports a
 /// direct "take orders" method that works similar to a "market buy". In the case
 /// of dynamic expression based ratios, it allows both order A and order B to
 /// clear non-interactively according to their strategy, trading off active
@@ -110,13 +110,12 @@ struct TakeOrdersConfigV5 {
 /// ∴ ratioA * ratioB <= 1
 /// ```
 ///
-/// Orderbook is `IERC3156FlashLender` compliant with a 0 fee flash loan
+/// Raindex is `IERC3156FlashLender` compliant with a 0 fee flash loan
 /// implementation to allow external liquidity from other onchain DEXes to match
-/// against orderbook expressions. All deposited tokens across all vaults are
+/// against Raindex expressions. All deposited tokens across all vaults are
 /// available for flashloan, the flashloan MAY BE REPAID BY CALLING TAKE ORDER
-/// such that Orderbook's liability to its vaults is decreased by an incoming
-/// trade from the flashloan borrower. See `ZeroExOrderBookFlashBorrower` for
-/// an example of how this works in practise.
+/// such that Raindex's liability to its vaults is decreased by an incoming
+/// trade from the flashloan borrower.
 ///
 /// Token amounts and ratios returned by calculate order MUST be rain floating
 /// point values. Handle IO will receive these values as floating point values.
@@ -125,18 +124,18 @@ struct TakeOrdersConfigV5 {
 /// at 37 decimals generally because when packed the floats are normalized to
 /// int128 values for the coefficients. Generally this means that the precision
 /// is larger than the entire minted supply of almost all tokens in existence.
-/// In the rare case of a token that has token balances in the orderbook larger
+/// In the rare case of a token that has token balances in the Raindex larger
 /// than 10^38, some truncation will occur after the 37th decimal place
 /// internally, on the _least_ significant digits, so should not be an issue
 /// even in extreme edge cases.
 ///
 /// Internal float values are converted to absolute token values according to the
-/// token's own `decimals` call only when tokens are moved by the orderbook. This
+/// token's own `decimals` call only when tokens are moved by the Raindex. This
 /// means that some tokens MAY NOT be supported:
-/// - If the token does not implement `decimals` then the orderbook will revert
+/// - If the token does not implement `decimals` then the Raindex will revert
 ///   when trying to move tokens.
 /// - If the token has a `decimals` value that is not a constant value then the
-///   internal accounting will be incorrect and the orderbook will either be
+///   internal accounting will be incorrect and the Raindex will either be
 ///   drained of or lock up that token. (other tokens will not be impacted).
 ///
 /// When two orders clear there are NO TOKEN MOVEMENTS, only internal vault
@@ -144,13 +143,13 @@ struct TakeOrdersConfigV5 {
 /// in less gas per clear than calling external token transfers and also avoids
 /// issues with reentrancy, allowances, external balances etc. This also means
 /// that REBASING TOKENS AND TOKENS WITH DYNAMIC BALANCE ARE NOT SUPPORTED.
-/// Orderbook ONLY WORKS IF TOKEN BALANCES ARE 1:1 WITH ADDITION/SUBTRACTION PER
+/// Raindex ONLY WORKS IF TOKEN BALANCES ARE 1:1 WITH ADDITION/SUBTRACTION PER
 /// VAULT MOVEMENT.
 ///
 /// Dust due to rounding errors always favours the order. Output max is rounded
 /// down and IO ratios are rounded up. Input and output amounts are always
 /// converted to absolute values before applying to vault balances such that
-/// orderbook always retains fully collateralised inventory of underlying token
+/// Raindex always retains fully collateralised inventory of underlying token
 /// balances to support withdrawals, with the caveat that dynamic token balances
 /// are not supported.
 ///
@@ -173,18 +172,18 @@ struct TakeOrdersConfigV5 {
 ///
 /// Note that each order specifies its own interpreter and deployer so the
 /// owner is responsible for not corrupting their own calculations with bad
-/// interpreters. This also means the Orderbook MUST assume the interpreter, and
+/// interpreters. This also means the Raindex MUST assume the interpreter, and
 /// notably the interpreter's store, is malicious and guard against reentrancy
 /// etc.
 ///
-/// As Orderbook supports any expression that can run on any `IInterpreterV4` and
+/// As Raindex supports any expression that can run on any `IInterpreterV4` and
 /// counterparties are available to the order, order strategies are free to
 /// implement KYC/membership, tracking, distributions, stock, buybacks, etc. etc.
 ///
-/// Main differences between `IOrderBookV5` and `IOrderBookV6`:
+/// Main differences between `IOrderBookV5` and `IRaindexV6`:
 /// - Supports vaultless orders.
 /// - Supports take order configuration based on taker output rather than input.
-interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
+interface IRaindexV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// MUST be thrown by `deposit` and `withdraw` if the vault ID is zero.
     /// @param sender `msg.sender` depositing or withdrawing tokens.
     /// @param token The token being deposited or withdrawn.
@@ -251,18 +250,18 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
         uint256 withdrawAmountUint256
     );
 
-    /// An order has been added to the orderbook. The order is permanently and
+    /// An order has been added to the Raindex. The order is permanently and
     /// always active according to its expression until/unless it is removed.
     /// @param sender `msg.sender` adding the order and is owner of the order.
     /// @param orderHash The hash of the order as it is recorded onchain. Only
-    /// the hash is stored in Orderbook storage to avoid paying gas to store the
+    /// the hash is stored in Raindex storage to avoid paying gas to store the
     /// entire order.
     /// @param order The newly added order. MUST be handed back as-is when
     /// clearing orders and contains derived information in addition to the order
     /// config that was provided by the order owner.
     event AddOrderV3(address sender, bytes32 orderHash, OrderV4 order);
 
-    /// An order has been removed from the orderbook. This effectively
+    /// An order has been removed from the Raindex. This effectively
     /// deactivates it. Orders can be added again after removal.
     /// @param sender `msg.sender` removing the order and is owner of the order.
     /// @param orderHash The hash of the removed order.
@@ -345,7 +344,7 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     ///
     /// At the same time, allowing vault IDs to be specified by the depositor
     /// allows much more granular and direct control over token movements within
-    /// Orderbook than either ERC4626 vault shares or mere contract-level ERC20
+    /// Raindex than either ERC4626 vault shares or mere contract-level ERC20
     /// allowances can facilitate.
     ///
     /// Vault IDs are namespaced by the token address so there is no risk of
@@ -354,11 +353,11 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     ///
     /// `0` amount deposits are unsupported as underlying token contracts
     /// handle `0` value transfers differently and this would be a source of
-    /// confusion. The order book MUST revert with `ZeroDepositAmount` if the
+    /// confusion. The Raindex MUST revert with `ZeroDepositAmount` if the
     /// amount is zero.
     ///
     /// Vault ID `0` is disallowed for deposits to avoid collision with vaultless
-    /// orders. The order book MUST revert with `ZeroVaultId` if the vault ID is
+    /// orders. The Raindex MUST revert with `ZeroVaultId` if the vault ID is
     /// zero.
     ///
     /// @param token The token to deposit.
@@ -371,7 +370,7 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
 
     /// Allows the sender to withdraw any tokens from their own vaults. If the
     /// withdrawer has an active flash loan debt denominated in the same token
-    /// being withdrawn then Orderbook will merely reduce the debt and NOT send
+    /// being withdrawn then Raindex will merely reduce the debt and NOT send
     /// the amount of tokens repaid to the flashloan debt.
     ///
     /// MUST revert if the amount _requested_ to withdraw is zero. The withdrawal
@@ -380,13 +379,13 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// other internal accounting.
     ///
     /// Vault ID `0` is NOT supported due to collision with vaultless orders.
-    /// The order book MUST revert with `ZeroVaultId` if the vault ID is zero.
+    /// The Raindex MUST revert with `ZeroVaultId` if the vault ID is zero.
     ///
     /// @param token The token to withdraw.
     /// @param vaultId The vault ID to withdraw from.
     /// @param targetAmount The amount of tokens to attempt to withdraw. MAY
     /// result in fewer tokens withdrawn if the vault balance is lower than the
-    /// target amount. MAY NOT be zero, the order book MUST revert with
+    /// target amount. MAY NOT be zero, the Raindex MUST revert with
     /// `ZeroWithdrawTargetAmount` if the amount is zero.
     /// @param tasks Additional tasks to run after the withdraw. Withdraw
     /// information SHOULD be made available during evaluation in context.
@@ -430,9 +429,9 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
     /// MUST revert with `OrderNoInputs` if the order has no inputs.
     /// MUST revert with `OrderNoOutputs` if the order has no outputs.
     ///
-    /// If the order already exists, the order book MUST NOT change state, which
+    /// If the order already exists, the Raindex MUST NOT change state, which
     /// includes not emitting an event. Instead it MUST return false. If the
-    /// order book modifies state it MUST emit an `AddOrder` event and return
+    /// Raindex modifies state it MUST emit an `AddOrderV3` event and return
     /// true.
     ///
     /// If vault ID is `0` for any input or output, this indicates a vaultless
@@ -508,9 +507,9 @@ interface IOrderBookV6 is IERC3156FlashLender, IInterpreterCallerV4 {
 
     /// Allows `msg.sender` to match two live orders placed earlier by
     /// non-interactive parties and claim a bounty in the process. The clearer is
-    /// free to select any two live orders on the order book for matching and as
+    /// free to select any two live orders on the Raindex for matching and as
     /// long as they have compatible tokens, ratios and amounts, the orders will
-    /// clear. Clearing the orders DOES NOT remove them from the orderbook, they
+    /// clear. Clearing the orders DOES NOT remove them from the Raindex, they
     /// remain live until explicitly removed by their owner. Even if the input
     /// vault balances are completely emptied, the orders remain live until
     /// removed. This allows order owners to deploy a strategy over a long period

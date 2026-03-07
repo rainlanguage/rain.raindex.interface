@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Solidity interface library for the Rain Protocol order book. Defines interfaces and types for an onchain order book where orders are strategies expressed as Rainlang interpreter bytecode. Part of the Rain Protocol ecosystem.
+Solidity interface library for Raindex (Rain Protocol's onchain order book). Defines interfaces and types for an order book where orders are strategies expressed as Rainlang interpreter bytecode. Part of the Rain Protocol ecosystem.
 
 License: DecentraLicense 1.0 (DCL-1.0). REUSE 3.2 compliant — all files need SPDX headers:
 ```solidity
@@ -30,8 +30,8 @@ Compiler: Solidity 0.8.25, EVM target: cancun, optimizer enabled (1M runs). Fuzz
 
 ### Interfaces (`src/interface/`)
 
-- **IOrderBookV6** — Current stable interface. Vault-based order book with deposit/withdraw, add/remove orders, take orders (market buy), and clear (match two orders with bounty). IERC3156 flash loan compliant. Supports vaultless orders (vault ID `0` means tokens move directly from wallet) and input/output-based take order limits via `IOIsInput` flag.
-- **IOrderBookV6OrderTaker / IOrderBookV6ArbOrderTaker** — Callback interfaces for takers receiving tokens during `takeOrders`.
+- **IRaindexV6** — Current stable interface. Vault-based order book with deposit/withdraw, add/remove orders, take orders (market buy), and clear (match two orders with bounty). IERC3156 flash loan compliant. Supports vaultless orders (vault ID `0` means tokens move directly from wallet) and input/output-based take order limits via `IOIsInput` flag.
+- **IRaindexV6OrderTaker / IRaindexV6ArbOrderTaker** — Callback interfaces for takers receiving tokens during `takeOrders`.
 - **ierc3156/** — Flash loan interfaces (IERC3156FlashLender, IERC3156FlashBorrower).
 - **deprecated/** (v1-v5) — Old interface versions. Do not modify unless undeprecating.
 
@@ -61,7 +61,7 @@ rain.math.float/=lib/rain.interpreter.interface/lib/rain.math.float/src/
 
 - All reverts use custom errors — no `revert("string")` or `require()` with string messages.
 - Interfaces use `pragma solidity ^0.8.18` (note: differs from interpreter interface which uses `^0.8.25`).
-- Versioned naming: interfaces (`IOrderBookV6`), structs (`OrderV4`, `ClearConfigV2`), events (`AddOrderV3`), functions (`deposit4`, `withdraw4`).
+- Versioned naming: interfaces (`IRaindexV6`), structs (`OrderV4`, `ClearConfigV2`), events (`AddOrderV3`), functions (`deposit4`, `withdraw4`).
 - Use `//forge-lint: disable-next-line(...)` comments for lint suppressions: `unused-import`, `mixed-case-variable`, `pascal-case-struct`.
 - Use `//forge-lint: disable-start(...)`/`disable-end(...)` for multi-line suppressions.
 - Branch naming: `YYYY-MM-DD-description`.

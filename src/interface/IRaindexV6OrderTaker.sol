@@ -2,36 +2,36 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 thedavidmeister
 pragma solidity ^0.8.18;
 
-import {Float} from "./IOrderBookV6.sol";
+import {Float} from "./IRaindexV6.sol";
 
-/// @title IOrderBookV6OrderTaker
+/// @title IRaindexV6OrderTaker
 /// @notice Interface for contracts that wish to `takeOrders` from an
-/// `IOrderBookV6` contract and receive a callback between the input being
+/// `IRaindexV6` contract and receive a callback between the input being
 /// sent and output being taken.
 ///
 /// SECURITY: This callback executes mid-transaction, after input tokens
 /// have been sent to the taker but before output tokens are pulled.
-/// Implementations MUST NOT re-enter the orderbook (e.g. via takeOrders,
-/// withdraw, or clear) during this callback. Orderbook implementations
+/// Implementations MUST NOT re-enter the Raindex (e.g. via takeOrders,
+/// withdraw, or clear) during this callback. Raindex implementations
 /// MUST use reentrancy guards to protect against malicious callbacks.
 /// Implementations MUST validate that `msg.sender` is the trusted
-/// orderbook contract.
-interface IOrderBookV6OrderTaker {
-    /// @notice Called by `IOrderBookV6` when `takeOrders` is called with
+/// Raindex contract.
+interface IRaindexV6OrderTaker {
+    /// @notice Called by `IRaindexV6` when `takeOrders` is called with
     /// non-zero data, if it caused a non-zero input amount. I.e. if the order(s)
     /// taker received some tokens. Input and output directions are relative to
-    /// the `IOrderBookV6OrderTaker` contract. If the order(s) taker had an
+    /// the `IRaindexV6OrderTaker` contract. If the order(s) taker had an
     /// active debt from a flash loan then that debt will be paid _before_
     /// calculating any input amounts sent.
     /// i.e. the debt is deducted from the input amount before this callback is
     /// called.
-    /// @param inputToken The token that was sent to `IOrderBookV6OrderTaker`.
-    /// @param outputToken The token that `IOrderBookV6` will attempt to pull
-    /// from `IOrderBookV6OrderTaker` after this callback returns.
+    /// @param inputToken The token that was sent to `IRaindexV6OrderTaker`.
+    /// @param outputToken The token that `IRaindexV6` will attempt to pull
+    /// from `IRaindexV6OrderTaker` after this callback returns.
     /// @param inputAmountSent The amount of `inputToken` that was sent to
-    /// `IOrderBookV6OrderTaker`.
+    /// `IRaindexV6OrderTaker`.
     /// @param totalOutputAmount The total amount of `outputToken` that
-    /// `IOrderBookV6` will attempt to pull from `IOrderBookV6OrderTaker` after
+    /// `IRaindexV6` will attempt to pull from `IRaindexV6OrderTaker` after
     /// this callback returns.
     /// @param takeOrdersData The data passed to `takeOrders` by the caller.
     function onTakeOrders2(
